@@ -6,6 +6,7 @@ require("awful.autofocus")
 require("awful.rules")
 -- Theme handling library
 require("beautiful")
+require("vicious")
 -- Notification library
 require("naughty")
 
@@ -35,14 +36,32 @@ if awesome.startup_errors then
   text = awesome.startup_errors })
 end
 
+-- HELPER FUNCTIONS
+
+function run_once(prg)
+  awful.util.spawn_with_shell("pgrep -u $USER -x " .. prg .. " || (" .. prg .. ")")
+end
+
+-- Autostart
+   run_once("nm-applet")
+   run_once("parcellite")
+  
+
+-- /Autostart
+
+
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
 beautiful.init("/usr/share/awesome/themes/default/theme.lua")
 
+
+-- Default apps
 -- This is used later as the default terminal and editor to run.
-terminal = "xterm"
+terminal  = "urxvt"
 editor = os.getenv("EDITOR") or "nano"
 editor_cmd = terminal .. " -e " .. editor
+fm    = "pcmanfm "
+
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -56,27 +75,23 @@ layouts =
 {
     awful.layout.suit.floating,
     awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
-    awful.layout.suit.tile.top,
-    awful.layout.suit.fair,
-    awful.layout.suit.fair.horizontal,
-    awful.layout.suit.spiral,
-    awful.layout.suit.spiral.dwindle,
     awful.layout.suit.max,
-    awful.layout.suit.max.fullscreen,
-    awful.layout.suit.magnifier
 }
 -- }}}
 
--- {{{ Tags
--- Define a tag table which hold all screen tags.
-tags = {}
-for s = 1, screen.count() do
-    -- Each screen has its own tag table.
-    tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[1])
-end
--- }}}
+ -- {{{ Tags
+ -- Define a tag table which will hold all screen tags.
+ tags = {
+   names  = { "chat", "www", "sys", "media", "office" },
+   layout = { layouts[2], layouts[4], layouts[3], layouts[1], layouts[1] }
+ }
+
+ for s = 1, screen.count() do
+     -- Each screen has its own tag table.
+     tags[s] = awful.tag(tags.names, s, tags.layout)
+ end
+ -- }}}
 
 -- {{{ Menu
 -- Create a laucher widget and a main menu
@@ -97,6 +112,7 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 -- }}}
 
 -- {{{ Wibox
+
 -- Create a textclock widget
 mytextclock = awful.widget.textclock({ align = "right" })
 
